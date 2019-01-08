@@ -138,7 +138,7 @@ static struct atom_entry *get_atom_entry( struct atom_table *table, atom_t atom 
 static atom_t add_atom_entry( struct atom_table *table, struct atom_entry *entry )
 {
     int i;
-    for (i = 0; i <= table->last; i++)
+    for (i = 0; i <= table->last; ++i)
         if (!table->handles[i]) goto found;
     if (i == table->count)
     {
@@ -167,7 +167,7 @@ static unsigned short atom_hash( struct atom_table *table, const struct unicode_
 {
     unsigned int i;
     unsigned short hash = 0;
-    for (i = 0; i < str->len / sizeof(WCHAR); i++) hash ^= toupperW(str->str[i]) + i;
+    for (i = 0; i < str->len / sizeof(WCHAR); ++i) hash ^= toupperW(str->str[i]) + i;
     return hash % table->entries_count;
 }
 
@@ -181,7 +181,7 @@ static void atom_table_dump( struct object *obj, int verbose )
     fprintf( stderr, "Atom table size=%d entries=%d\n",
              table->last + 1, table->entries_count );
     if (!verbose) return;
-    for (i = 0; i <= table->last; i++)
+    for (i = 0; i <= table->last; ++i)
     {
         struct atom_entry *entry = table->handles[i];
         if (!entry) continue;
@@ -200,7 +200,7 @@ static void atom_table_destroy( struct object *obj )
     assert( obj->ops == &atom_table_ops );
     if (table->handles)
     {
-        for (i = 0; i <= table->last; i++) free( table->handles[i] );
+        for (i = 0; i <= table->last; ++i) free( table->handles[i] );
         free( table->handles );
     }
     free( table->entries );
@@ -363,7 +363,7 @@ int grab_global_atom( struct winstation *winstation, atom_t atom )
         if (table)
         {
             struct atom_entry *entry = get_atom_entry( table, atom );
-            if (entry) entry->count++;
+            if (entry) ++(entry->count);
             return (entry != NULL);
         }
         else return 0;
@@ -475,7 +475,7 @@ DECL_HANDLER(empty_atom_table)
         int i;
         struct atom_entry *entry;
 
-        for (i = 0; i <= table->last; i++)
+        for (i = 0; i <= table->last; ++i)
         {
             entry = table->handles[i];
             if (entry && (!entry->pinned || req->if_pinned))
