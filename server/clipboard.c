@@ -214,7 +214,7 @@ static int synthesize_formats( struct clipboard *clipboard )
         else free( data );
     }
 
-    for (i = 0; i < ARRAY_SIZE( formats ); i++)
+    for (i = 0; i < ARRAY_SIZE( formats ); ++i)
     {
         if (HAS_FORMAT( map, formats[i][0] )) continue;
         if (HAS_FORMAT( map, formats[i][1] )) from = formats[i][1];
@@ -233,7 +233,7 @@ static void add_listener( struct clipboard *clipboard, user_handle_t window )
 {
     unsigned int i;
 
-    for (i = 0; i < clipboard->listen_count; i++)
+    for (i = 0; i < clipboard->listen_count; ++i)
     {
         if (clipboard->listeners[i] != window) continue;
         set_error( STATUS_INVALID_PARAMETER );  /* already set */
@@ -259,7 +259,7 @@ static int remove_listener( struct clipboard *clipboard, user_handle_t window )
 {
     unsigned int i;
 
-    for (i = 0; i < clipboard->listen_count; i++)
+    for (i = 0; i < clipboard->listen_count; ++i)
     {
         if (clipboard->listeners[i] != window) continue;
         memmove( clipboard->listeners + i, clipboard->listeners + i + 1,
@@ -275,7 +275,7 @@ static user_handle_t notify_listeners( struct clipboard *clipboard )
 {
     unsigned int i;
 
-    for (i = 0; i < clipboard->listen_count; i++)
+    for (i = 0; i < clipboard->listen_count; ++i)
         post_message( clipboard->listeners[i], WM_CLIPBOARDUPDATE, 0, 0 );
     return clipboard->viewer;
 }
@@ -286,7 +286,7 @@ static user_handle_t close_clipboard( struct clipboard *clipboard )
     clipboard->open_win = 0;
     clipboard->open_thread = NULL;
     if (clipboard->seqno == clipboard->open_seqno) return 0;  /* unchanged */
-    if (synthesize_formats( clipboard )) clipboard->seqno++;
+    if (synthesize_formats( clipboard )) ++(clipboard->seqno);
     return notify_listeners( clipboard );
 }
 
@@ -310,7 +310,7 @@ static user_handle_t release_clipboard( struct clipboard *clipboard )
     }
 
     if (!changed) return 0;
-    clipboard->seqno++;
+    ++(clipboard->seqno);
     return notify_listeners( clipboard );
 }
 
@@ -545,7 +545,7 @@ DECL_HANDLER(empty_clipboard)
 
     free_clipboard_formats( clipboard );
     clipboard->owner = clipboard->open_win;
-    clipboard->seqno++;
+    ++(clipboard->seqno);
 }
 
 
